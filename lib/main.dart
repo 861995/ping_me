@@ -6,6 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:we_chat/domain/repository/user_local_repository.dart';
 import 'package:we_chat/presentation/bloc/auth/auth_bloc.dart';
+import 'package:we_chat/presentation/bloc/home_screen/home_screen_bloc.dart';
+import 'package:we_chat/presentation/bloc/home_screen/home_screen_event.dart';
 import 'package:we_chat/presentation/screens/home_screen/home_screen.dart';
 import 'package:we_chat/presentation/screens/on_board_screen/on_board_screen.dart';
 
@@ -31,11 +33,15 @@ class MyApp extends StatelessWidget {
       builder: (_, child) {
         return MultiBlocProvider(
           providers: [
+            BlocProvider<HomeScreenBloc>(
+              create: (context) => HomeScreenBloc()..add(FetchUsersStream()),
+            ),
             BlocProvider<AuthBloc>(
               create: (context) => AuthBloc(
                 FirebaseAuth.instance,
                 GoogleSignIn(),
                 getIt<UserLocalRepository>(),
+                BlocProvider.of<HomeScreenBloc>(context),
               ),
             ),
           ],

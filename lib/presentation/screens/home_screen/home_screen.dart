@@ -5,10 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:we_chat/helpers/toast_helper/toast_helper.dart';
+import 'package:we_chat/presentation/bloc/home_screen/home_screen_bloc.dart';
+import 'package:we_chat/presentation/bloc/home_screen/home_screen_state.dart';
 import 'package:we_chat/presentation/utils/app_colors.dart';
 import 'package:we_chat/presentation/utils/app_fonts.dart';
 
 import '../../bloc/auth/auth_bloc.dart';
+import '../../bloc/home_screen/home_screen_event.dart';
 import '../../widgets/drawer/drawer_widget.dart';
 import '../../widgets/home_screen_widget/app_bar_widget.dart';
 
@@ -29,30 +32,30 @@ class HomeScreen extends StatelessWidget {
           showToast("Add Screen under Construction");
         },
       ),
-      body: Builder(builder: (context) {
-        final authBloc = BlocProvider.of<AuthBloc>(context);
-        return StreamBuilder<List<Map<String, dynamic>>>(
-          stream: authBloc.fetchUsersStream(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+      body: BlocProvider(
+        create: (context) => HomeScreenBloc()..add(FetchUsersStream()),
+        child: BlocBuilder<HomeScreenBloc, HomeScreenState>(
+          builder: (context, state) {
+            if (state is UserLoading) {
               return const Center(child: CircularProgressIndicator());
             }
-            if (snapshot.hasData && snapshot.data != null) {
+            if (state is UsersLoaded) {
               return AnimationList(
-                  duration: 1500,
-                  reBounceDepth: 10.0,
-                  children: snapshot.data?.map((item) {
-                    return _buildTile(
-                        item['displayName'] ?? "", item["photoURL"] ?? "");
-                  }).toList());
-            } else {
-              return const Center(
-                child: Text("No User Found"),
+                duration: 1500,
+                reBounceDepth: 10.0,
+                children: state.users.map((user) {
+                  return _buildTile(
+                      user['displayName'] ?? "", user["photoURL"] ?? "");
+                }).toList(),
               );
             }
+            if (state is NoUsersFound) {
+              return const Center(child: Text("No User Found"));
+            }
+            return const Center(child: Text("Something went wrong"));
           },
-        );
-      }),
+        ),
+      ),
     );
   }
 
