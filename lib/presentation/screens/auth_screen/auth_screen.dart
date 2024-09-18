@@ -33,6 +33,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       overlayWidgetBuilder: (state) {
         return Center(
           child: LoadingAnimationWidget.flickr(
+              //
               size: 80.sp,
               leftDotColor: AppColors.kPrimaryColor,
               rightDotColor: AppColors.kTertiaryColor),
