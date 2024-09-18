@@ -14,20 +14,21 @@ class OnBoardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IntroductionScreen(
+      globalBackgroundColor: Colors.purple.shade50,
       pages: [
         PageViewModel(
           title: AppConst.welcome_to_ping_me,
           body: "Welcome to the app! This is a description of how it works.",
           image: Center(
             child: Icon(
-              HeroIcons.chat_bubble_oval_left_ellipsis,
+              FontAwesome.p_solid,
+              size: 400.sp,
               color: AppColors.kPrimaryColor,
-              size: 350.sp,
             ),
           ),
           decoration: PageDecoration(
             imageFlex: 2,
-            titleTextStyle: AppFonts.bold20,
+            titleTextStyle: AppFonts.bold20.copyWith(color: Colors.black),
             bodyTextStyle: AppFonts.regular14,
           ),
         ),
@@ -43,7 +44,7 @@ class OnBoardScreen extends StatelessWidget {
           ),
           decoration: PageDecoration(
             imageFlex: 2,
-            titleTextStyle: AppFonts.bold20,
+            titleTextStyle: AppFonts.bold20.copyWith(color: Colors.black),
             bodyTextStyle: AppFonts.regular14,
           ),
         ),
@@ -52,14 +53,14 @@ class OnBoardScreen extends StatelessWidget {
           body: "Chat with your friends and also secure your chat",
           image: Center(
             child: Icon(
-              Iconsax.security_bold,
-              color: Colors.black,
-              size: 350.sp,
+              IonIcons.finger_print,
+              size: 300.sp,
+              color: AppColors.kPrimaryColor,
             ),
           ),
           decoration: PageDecoration(
             imageFlex: 2,
-            titleTextStyle: AppFonts.bold20,
+            titleTextStyle: AppFonts.bold20.copyWith(color: Colors.black),
             bodyTextStyle: AppFonts.regular14,
           ),
         ),
