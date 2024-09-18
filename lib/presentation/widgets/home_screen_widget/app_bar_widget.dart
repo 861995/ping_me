@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:we_chat/presentation/utils/app_const_text.dart';
 
 import '../../../helpers/toast_helper/toast_helper.dart';
 import '../../utils/app_colors.dart';
@@ -9,12 +10,11 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final bool showNotificationIcon;
   final Gradient? gradient;
 
-  const AppBarWidget({
-    super.key,
-    this.title = 'We Chat',
-    this.showNotificationIcon = true,
-    this.gradient,
-  });
+  const AppBarWidget(
+      {super.key,
+      this.title = AppConst.ping_me,
+      this.showNotificationIcon = true,
+      this.gradient});
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 

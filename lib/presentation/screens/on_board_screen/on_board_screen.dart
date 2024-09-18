@@ -5,6 +5,7 @@ import 'package:introduction_screen/introduction_screen.dart';
 import 'package:we_chat/presentation/utils/app_colors.dart';
 import 'package:we_chat/presentation/utils/app_fonts.dart';
 
+import '../../utils/app_const_text.dart';
 import '../auth_screen/auth_screen.dart';
 
 class OnBoardScreen extends StatelessWidget {
@@ -15,7 +16,7 @@ class OnBoardScreen extends StatelessWidget {
     return IntroductionScreen(
       pages: [
         PageViewModel(
-          title: "Welcome to We Chat",
+          title: AppConst.welcome_to_ping_me,
           body: "Welcome to the app! This is a description of how it works.",
           image: Center(
             child: Icon(

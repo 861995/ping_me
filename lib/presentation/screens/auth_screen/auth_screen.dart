@@ -164,7 +164,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
           end: Alignment.bottomRight,
         ).createShader(bounds),
         child: Text(
-          "Welcome to We Chat",
+          AppConst.welcome_to_ping_me,
           style: AppFonts.bold20.copyWith(color: Colors.white, fontSize: 30.sp),
         ),
       ),
