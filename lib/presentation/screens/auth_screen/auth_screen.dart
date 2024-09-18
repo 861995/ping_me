@@ -34,7 +34,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
         return Center(
           child: LoadingAnimationWidget.flickr(
               //
-              size: 80.sp,
+              size: 50.sp,
               leftDotColor: AppColors.kPrimaryColor,
               rightDotColor: AppColors.kTertiaryColor),
         );
