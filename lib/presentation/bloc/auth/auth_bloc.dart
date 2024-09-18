@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../domain/repository/user_local_repository.dart';
+import '../home_screen/home_screen_bloc.dart';
+import '../home_screen/home_screen_event.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -11,8 +13,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
   final UserLocalRepository _userRepository;
+  final HomeScreenBloc _homeScreenBloc;
 
-  AuthBloc(this._firebaseAuth, this._googleSignIn, this._userRepository)
+  AuthBloc(this._firebaseAuth, this._googleSignIn, this._userRepository,
+      this._homeScreenBloc)
       : super(AuthInitial()) {
     on<SignInWithEmail>(_onSignInWithEmail);
     on<SignInWithGoogle>(_onSignInWithGoogle);
@@ -37,7 +41,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           await _firebaseAuth.signInWithEmailAndPassword(
               email: event.email, password: event.password);
       await _userRepository.saveUser(userCredential.user!);
-      await saveUserData(userCredential.user!);
+      _homeScreenBloc.add(SaveUserData(userCredential.user!));
     } on FirebaseAuthException catch (e) {
       emit(AuthFailure(e.message ?? 'An unknown error occurred'));
     }
@@ -64,7 +68,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final User? user = userCredential.user;
       await _userRepository.saveUser(user!);
 
-      await saveUserData(user);
+      _homeScreenBloc.add(SaveUserData(user));
+      // await saveUserData(user);
       emit(Authenticated(user));
     } on FirebaseAuthException catch (e) {
       emit(AuthFailure(e.message ?? 'An unknown error occurred'));
@@ -97,35 +102,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthInitial());
   }
 
-  Future<void> saveUserData(User user) async {
-    final firestore = FirebaseFirestore.instance;
-    final userCollection = firestore.collection('users');
-
-    await userCollection.doc(user.uid).set({
-      'uid': user.uid,
-      'email': user.email,
-      'displayName': user.displayName,
-      'photoURL': user.photoURL,
-    });
-  }
-
-  // Future<List<Map<String, dynamic>>> fetchUsers() async {
+  // Future<void> saveUserData(User user) async {
   //   final firestore = FirebaseFirestore.instance;
   //   final userCollection = firestore.collection('users');
   //
-  //   final querySnapshot = await userCollection.get();
-  //   final userList = querySnapshot.docs.map((doc) => doc.data()).toList();
-  //
-  //   return userList;
+  //   await userCollection.doc(user.uid).set({
+  //     'uid': user.uid,
+  //     'email': user.email,
+  //     'displayName': user.displayName,
+  //     'photoURL': user.photoURL,
+  //   });
   // }
-  Stream<List<Map<String, dynamic>>> fetchUsersStream() {
-    final firestore = FirebaseFirestore.instance;
-    final userCollection = firestore.collection('users');
 
-    return userCollection.snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) => doc.data()).toList();
-    });
-  }
+  // Stream<List<Map<String, dynamic>>> fetchUsersStream() {
+  //   final firestore = FirebaseFirestore.instance;
+  //   final userCollection = firestore.collection('users');
+  //
+  //   return userCollection.snapshots().map((snapshot) {
+  //     return snapshot.docs.map((doc) => doc.data()).toList();
+  //   });
+  // }
 }
 
 class AuthAuthenticated extends AuthEvent {

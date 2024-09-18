@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:we_chat/presentation/utils/app_const_text.dart';
 
 import '../../../helpers/toast_helper/toast_helper.dart';
@@ -9,12 +10,18 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool showNotificationIcon;
   final Gradient? gradient;
+  final bool? isBackNeeded;
+  final bool? isProfileImage;
+  final String? photoURL;
 
   const AppBarWidget(
       {super.key,
       this.title = AppConst.ping_me,
       this.showNotificationIcon = true,
-      this.gradient});
+      this.gradient,
+      this.isBackNeeded = false,
+      this.isProfileImage = false,
+      this.photoURL});
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
@@ -28,17 +35,48 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       elevation: 2.0,
       shadowColor: Colors.grey.withOpacity(0.5),
-      leading: Builder(builder: (context) {
-        return IconButton(
-          icon: const Icon(
-            Icons.menu,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            Scaffold.of(context).openDrawer();
-          },
-        );
-      }),
+      leading: isBackNeeded == true
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Icon(Icons.arrow_back)),
+                isProfileImage == true
+                    ? Hero(
+                        tag: "profileImage${photoURL}",
+                        child: Container(
+                          width: 28.sp,
+                          height: 28.sp,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: photoURL != null && photoURL!.isNotEmpty
+                                  ? NetworkImage(photoURL!)
+                                  : const AssetImage(
+                                          "assets/images/no_profile_image.jpeg")
+                                      as ImageProvider,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
+              ],
+            )
+          : Builder(builder: (context) {
+              return IconButton(
+                icon: const Icon(
+                  Icons.menu,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              );
+            }),
       actions: [
         if (showNotificationIcon)
           IconButton(
