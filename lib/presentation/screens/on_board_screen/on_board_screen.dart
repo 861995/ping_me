@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:introduction_screen/introduction_screen.dart';
+import 'package:lottie/lottie.dart';
 import 'package:we_chat/presentation/utils/app_colors.dart';
 import 'package:we_chat/presentation/utils/app_fonts.dart';
 
@@ -20,10 +21,9 @@ class OnBoardScreen extends StatelessWidget {
           title: AppConst.welcome_to_ping_me,
           body: "Welcome to the app! This is a description of how it works.",
           image: Center(
-            child: Icon(
-              FontAwesome.p_solid,
-              size: 400.sp,
-              color: AppColors.kPrimaryColor,
+            child: Lottie.asset(
+              'assets/lottie/hello_animation.json',
+              repeat: false,
             ),
           ),
           decoration: PageDecoration(
@@ -36,11 +36,8 @@ class OnBoardScreen extends StatelessWidget {
           title: "Social Media Login",
           body:
               "You can login using your Gmail, Facebook, LinkedIn, Apple account",
-          image: Center(
-            child: Brand(
-              Brands.gmail,
-              size: 400.sp,
-            ),
+          image: Lottie.asset(
+            'assets/lottie/social_media_login.json',
           ),
           decoration: PageDecoration(
             imageFlex: 2,
@@ -51,12 +48,8 @@ class OnBoardScreen extends StatelessWidget {
         PageViewModel(
           title: "Chat Securely",
           body: "Chat with your friends and also secure your chat",
-          image: Center(
-            child: Icon(
-              IonIcons.finger_print,
-              size: 300.sp,
-              color: AppColors.kPrimaryColor,
-            ),
+          image: Lottie.asset(
+            'assets/lottie/chat_securely.json',
           ),
           decoration: PageDecoration(
             imageFlex: 2,
