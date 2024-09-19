@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lottie/lottie.dart';
 import 'package:we_chat/helpers/toast_helper/toast_helper.dart';
 import 'package:we_chat/presentation/bloc/auth/auth_event.dart';
 import 'package:we_chat/presentation/screens/auth_screen/auth_screen.dart';
@@ -97,21 +98,66 @@ class DrawerWidget extends StatelessWidget {
           ),
           const Spacer(),
           ListTile(
-            leading: Icon(Icons.logout),
+            leading: const Icon(Icons.logout),
             title: const Text("Sign Out"),
             onTap: () {
-              context.read<AuthBloc>().add(SignOut());
               Navigator.pop(context);
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => AuthScreen()),
-                (Route<dynamic> route) => false,
-              );
+              _showMyDialog(context);
+
               showToast("Signed out");
             },
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _showMyDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Are you sure want to Sign Out?',
+            style: AppFonts.bold20,
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Center(
+                  child: Lottie.asset('assets/lottie/alert.json',
+                      repeat: true, height: 150.sp, width: 150.sp),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Sign Out'),
+              onPressed: () {
+                _signOut(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _signOut(BuildContext context) {
+    context.read<AuthBloc>().add(SignOut());
+    Navigator.pop(context);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => AuthScreen()),
+      (Route<dynamic> route) => false,
     );
   }
 }

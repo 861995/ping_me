@@ -103,7 +103,7 @@ class _ChatInputState extends State<ChatInput> {
               ),
             ),
           ),
-          SizedBox(width: 8.0),
+          const SizedBox(width: 8.0),
           IconButton(
             icon: Icon(Icons.send),
             color: Colors.green, // Customize your color here
