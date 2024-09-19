@@ -1,4 +1,5 @@
 import 'package:animation_list/animation_list.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -8,6 +9,7 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:we_chat/helpers/toast_helper/toast_helper.dart';
+import 'package:we_chat/presentation/bloc/chat/chat_bloc.dart';
 import 'package:we_chat/presentation/bloc/home_screen/home_screen_bloc.dart';
 import 'package:we_chat/presentation/bloc/home_screen/home_screen_state.dart';
 import 'package:we_chat/presentation/utils/app_colors.dart';
@@ -24,6 +26,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String currentUserId = FirebaseAuth.instance.currentUser!.uid;
     return GlobalLoaderOverlay(
       duration: Durations.medium4,
       reverseDuration: Durations.medium4,
@@ -58,12 +61,16 @@ class HomeScreen extends StatelessWidget {
                 context.loaderOverlay.hide();
               }
               if (state is UsersLoaded) {
+                List<Map<String, dynamic>> _filteredUsers =
+                    state.users.where((user) {
+                  return user['uid'] != currentUserId;
+                }).toList();
                 return AnimationList(
                   duration: 1500,
                   reBounceDepth: 10.0,
-                  children: state.users.map((user) {
+                  children: _filteredUsers.map((user) {
                     return _buildTile(user['displayName'] ?? "",
-                        user["photoURL"] ?? "", context);
+                        user["photoURL"] ?? "", context, user['uid'] ?? "");
                   }).toList(),
                 );
               }
@@ -78,10 +85,11 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTile(String title, String? photoURL, BuildContext context) {
+  Widget _buildTile(
+      String title, String? photoURL, BuildContext context, String recieverId) {
     return InkWell(
       onTap: () {
-        navigateToChatScreen(context, title, photoURL!);
+        navigateToChatScreen(context, title, photoURL!, recieverId);
       },
       child: Container(
         height: 60.sp,
@@ -129,14 +137,22 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  void navigateToChatScreen(
-      BuildContext context, String title, String photoURL) {
+  void navigateToChatScreen(BuildContext context, String title, String photoURL,
+      String receiverId) async {
+    String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    final chatScreenBloc = BlocProvider.of<ChatScreenBloc>(context);
+    final String chatId =
+        await chatScreenBloc.getOrCreateChatId(currentUserId, receiverId);
+    print(chatId);
+
     Navigator.push(
       context,
       SlidePageRoute(
           page: ChatScreen(
+        chatId: chatId,
         userTitle: title,
         photoURL: photoURL,
+        recieverId: receiverId,
       )),
     );
   }

@@ -59,19 +59,39 @@ class DrawerWidget extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              userData["displayName"] ?? "",
-                              style: AppFonts.bold20
-                                  .copyWith(color: AppColors.kWhiteColor),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Flexible(
+                                  fit: FlexFit.loose,
+                                  child: Text(
+                                    userData["displayName"] ?? "",
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppFonts.bold20
+                                        .copyWith(color: AppColors.kWhiteColor),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              userData["email"] ?? "",
-                              style: AppFonts.regular12
-                                  .copyWith(color: AppColors.kWhiteColor),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Flexible(
+                                  fit: FlexFit.loose,
+                                  child: Text(
+                                    userData["email"] ?? "",
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppFonts.regular12
+                                        .copyWith(color: AppColors.kWhiteColor),
+                                  ),
+                                ),
+                              ],
                             )
                           ],
                         ),
-                        SizedBox()
+                        const SizedBox()
                       ],
                     );
                   } else {

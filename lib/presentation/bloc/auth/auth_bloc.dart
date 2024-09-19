@@ -101,27 +101,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       AuthUnauthenticated event, Emitter<AuthState> emit) {
     emit(AuthInitial());
   }
-
-  // Future<void> saveUserData(User user) async {
-  //   final firestore = FirebaseFirestore.instance;
-  //   final userCollection = firestore.collection('users');
-  //
-  //   await userCollection.doc(user.uid).set({
-  //     'uid': user.uid,
-  //     'email': user.email,
-  //     'displayName': user.displayName,
-  //     'photoURL': user.photoURL,
-  //   });
-  // }
-
-  // Stream<List<Map<String, dynamic>>> fetchUsersStream() {
-  //   final firestore = FirebaseFirestore.instance;
-  //   final userCollection = firestore.collection('users');
-  //
-  //   return userCollection.snapshots().map((snapshot) {
-  //     return snapshot.docs.map((doc) => doc.data()).toList();
-  //   });
-  // }
 }
 
 class AuthAuthenticated extends AuthEvent {

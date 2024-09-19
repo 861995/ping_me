@@ -43,13 +43,16 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                     onTap: () {
                       Navigator.pop(context);
                     },
-                    child: const Icon(Icons.arrow_back)),
+                    child: Icon(
+                      Icons.arrow_back,
+                      // size: 29.sp,
+                    )),
                 isProfileImage == true
                     ? Hero(
                         tag: "profileImage${photoURL}",
                         child: Container(
-                          width: 28.sp,
-                          height: 28.sp,
+                          width: 29.sp,
+                          height: 35.sp,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             image: DecorationImage(
