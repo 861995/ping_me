@@ -1,10 +1,16 @@
 # ping_me
 
 # Whats in version 1.0.1?
-This is Social chat app shows your the user who else are using this app and also you can chat with them .
+This is Social chat app shows you the user who else are using this app and also you can chat with them .
 
-# Features
+# Features in 1.0.1
 1. Google sign in
 2. Chat option
 3. Bloc state management
 4. Clean architecture
+
+# What can you expect in version 1.0.2?
+1. Push notification
+2. profile pic view
+3. unread message highlight
+4. User search option
