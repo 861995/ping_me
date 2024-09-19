@@ -1,116 +1,131 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lottie/lottie.dart';
+import 'package:we_chat/presentation/utils/app_fonts.dart';
 
+import '../../bloc/chat/chat_bloc.dart';
+import '../../bloc/chat/chat_event.dart';
+import '../../bloc/chat/chat_state.dart';
+import '../../widgets/chat_widgets/chat_bubble_widget.dart';
 import '../../widgets/home_screen_widget/app_bar_widget.dart';
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
+  final String chatId;
   final String userTitle;
   final String photoURL;
+  final String recieverId;
+
   const ChatScreen(
-      {super.key, required this.userTitle, required this.photoURL});
+      {super.key,
+      required this.chatId,
+      required this.photoURL,
+      required this.recieverId,
+      required this.userTitle});
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final TextEditingController _messageController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    context.read<ChatScreenBloc>().add(FetchMessagesStreamEvent(widget.chatId));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarWidget(
         showNotificationIcon: false,
         isBackNeeded: true,
-        title: userTitle,
+        title: widget.userTitle,
         isProfileImage: true,
-        photoURL: photoURL,
+        photoURL: widget.photoURL,
       ),
       body: Column(
         children: [
           Expanded(
-            child: ListView(
-              padding: EdgeInsets.all(8.0),
-              children: [
-                // Example messages
-                ChatMessage(message: "Hello!", isMe: true),
-                ChatMessage(message: "Hi there!", isMe: false),
-                // Add more ChatMessage widgets here
-              ],
+            child: BlocProvider(
+              create: (context) => ChatScreenBloc()
+                ..add(FetchMessagesStreamEvent(widget.chatId)),
+              child: BlocBuilder<ChatScreenBloc, ChatState>(
+                builder: (context, state) {
+                  if (state is ChatLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (state is MessagesLoaded) {
+                    return state.messages.isNotEmpty
+                        ? ListView.builder(
+                            reverse: true,
+                            itemCount: state.messages.length,
+                            itemBuilder: (context, index) {
+                              final message = state.messages[index];
+                              return ListTile(
+                                // title: Text(message['message']),
+                                title: ChatBubbleWidget(
+                                    message: message['message'], isMe: true),
+                              );
+                            },
+                          )
+                        : noChatWidget();
+                  } else if (state is NoChatFound) {
+                    return noChatWidget();
+                  }
+                  return const Center(child: Text('Start chatting!'));
+                },
+              ),
             ),
           ),
-          ChatInput(),
+          _buildMessageInput(context),
         ],
       ),
     );
   }
-}
 
-class ChatMessage extends StatelessWidget {
-  final String message;
-  final bool isMe;
-
-  ChatMessage({required this.message, required this.isMe});
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 4.0),
-        padding: EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          color: isMe ? Colors.blueAccent : Colors.grey[300],
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: Text(
-          message,
-          style: TextStyle(
-            color: isMe ? Colors.white : Colors.black,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ChatInput extends StatefulWidget {
-  @override
-  _ChatInputState createState() => _ChatInputState();
-}
-
-class _ChatInputState extends State<ChatInput> {
-  final TextEditingController _controller = TextEditingController();
-
-  void _sendMessage() {
-    // Handle message send action here
-    final message = _controller.text;
-    if (message.isNotEmpty) {
-      print("Sending message: $message");
-      _controller.clear();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildMessageInput(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
           Expanded(
-            child: SizedBox(
-              height: 40.h,
-              child: TextField(
-                controller: _controller,
-                decoration: InputDecoration(
-                  hintText: 'Type a message',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
+            child: TextField(
+              controller: _messageController,
+              decoration: const InputDecoration(
+                hintText: "Enter your message...",
               ),
             ),
           ),
-          const SizedBox(width: 8.0),
           IconButton(
-            icon: Icon(Icons.send),
-            color: Colors.green, // Customize your color here
-            onPressed: _sendMessage,
+            icon: const Icon(Icons.send),
+            onPressed: () {
+              final message = _messageController.text;
+              if (message.isNotEmpty) {
+                context.read<ChatScreenBloc>().add(SendMessageEvent(
+                    widget.chatId, message, widget.recieverId));
+                _messageController.clear();
+              }
+            },
           ),
         ],
       ),
+    );
+  }
+
+  Widget noChatWidget() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Lottie.asset("assets/lottie/say_HI.json",
+            repeat: false, height: 300.h, width: 300.w),
+        Text(
+          'Ping MEEE!',
+          style: AppFonts.regular18,
+        )
+      ],
     );
   }
 }
