@@ -15,12 +15,14 @@ class ChatScreen extends StatefulWidget {
   final String userTitle;
   final String photoURL;
   final String recieverId;
+  final String currentUserID;
 
   const ChatScreen(
       {super.key,
       required this.chatId,
       required this.photoURL,
       required this.recieverId,
+      required this.currentUserID,
       required this.userTitle});
 
   @override
@@ -62,11 +64,17 @@ class _ChatScreenState extends State<ChatScreen> {
                             reverse: true,
                             itemCount: state.messages.length,
                             itemBuilder: (context, index) {
+                              widget.recieverId;
+                              widget.currentUserID;
+
                               final message = state.messages[index];
+
                               return ListTile(
                                 // title: Text(message['message']),
                                 title: ChatBubbleWidget(
-                                    message: message['message'], isMe: true),
+                                    message: message['message'],
+                                    isMe: message['senderId'] ==
+                                        widget.currentUserID),
                               );
                             },
                           )
@@ -120,10 +128,10 @@ class _ChatScreenState extends State<ChatScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Lottie.asset("assets/lottie/say_HI.json",
-            repeat: false, height: 300.h, width: 300.w),
+            repeat: false, height: 200.h, width: 200.w),
         Text(
           'Ping MEEE!',
-          style: AppFonts.regular18,
+          style: AppFonts.boldFont,
         )
       ],
     );

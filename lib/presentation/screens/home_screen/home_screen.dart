@@ -69,8 +69,12 @@ class HomeScreen extends StatelessWidget {
                   duration: 1500,
                   reBounceDepth: 10.0,
                   children: _filteredUsers.map((user) {
-                    return _buildTile(user['displayName'] ?? "",
-                        user["photoURL"] ?? "", context, user['uid'] ?? "");
+                    return _buildTile(
+                        user['displayName'] ?? "",
+                        user["photoURL"] ?? "",
+                        context,
+                        user['uid'] ?? "",
+                        currentUserId);
                   }).toList(),
                 );
               }
@@ -85,11 +89,12 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTile(
-      String title, String? photoURL, BuildContext context, String recieverId) {
+  Widget _buildTile(String title, String? photoURL, BuildContext context,
+      String recieverId, String currentUserId) {
     return InkWell(
       onTap: () {
-        navigateToChatScreen(context, title, photoURL!, recieverId);
+        navigateToChatScreen(
+            context, title, photoURL!, recieverId, currentUserId);
       },
       child: Container(
         height: 60.sp,
@@ -138,8 +143,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   void navigateToChatScreen(BuildContext context, String title, String photoURL,
-      String receiverId) async {
-    String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+      String receiverId, String currentUserId) async {
     final chatScreenBloc = BlocProvider.of<ChatScreenBloc>(context);
     final String chatId =
         await chatScreenBloc.getOrCreateChatId(currentUserId, receiverId);
@@ -149,11 +153,11 @@ class HomeScreen extends StatelessWidget {
       context,
       SlidePageRoute(
           page: ChatScreen(
-        chatId: chatId,
-        userTitle: title,
-        photoURL: photoURL,
-        recieverId: receiverId,
-      )),
+              chatId: chatId,
+              userTitle: title,
+              photoURL: photoURL,
+              recieverId: receiverId,
+              currentUserID: currentUserId)),
     );
   }
 }
