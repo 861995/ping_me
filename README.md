@@ -14,3 +14,6 @@ This is Social chat app shows you the user who else are using this app and also 
 2. profile pic view
 3. unread message highlight
 4. User search option
+5. Integrating crash analytics
+6. User Online status
+7. Sorting User by recent message 

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'chat_event.dart';
@@ -43,13 +44,42 @@ class ChatScreenBloc extends Bloc<ChatEvent, ChatState> {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
+      // Update lastMessageTime for the current user
+      final usersCollection = FirebaseFirestore.instance.collection('users');
+      final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+      await usersCollection
+          .doc(currentUserId)
+          .collection('conversations')
+          .doc(event.receiverId)
+          .set({
+        'lastMessageTime': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      // Update lastMessageTime for the receiver
+      await usersCollection
+          .doc(event.receiverId)
+          .collection('conversations')
+          .doc(currentUserId)
+          .set({
+        'lastMessageTime': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
       // Update last message in chat document
       await chatDoc.update({
         'lastMessage': event.message,
         'lastMessageTime': FieldValue.serverTimestamp(),
       });
 
-      emit(ChatInitial()); // Return to initial state after message sent
+      // Also update the lastMessageTime field directly in the users collection
+      // await usersCollection.doc(currentUserId).update({
+      //   'lastMessageTime': FieldValue.serverTimestamp(),
+      // });
+      // await usersCollection.doc(event.receiverId).update({
+      //   'lastMessageTime': FieldValue.serverTimestamp(),
+      // });
+
+      emit(ChatInitial());
     } catch (e) {
       emit(NoChatFound('Error sending message: $e'));
     }
