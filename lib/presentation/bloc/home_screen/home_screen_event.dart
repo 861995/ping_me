@@ -16,3 +16,22 @@ class SaveUserData extends HomeScreenEvent {
 }
 
 class FetchUsersStream extends HomeScreenEvent {}
+
+class UpdateUserStatus extends HomeScreenEvent {
+  final String userId;
+  final bool isOnline;
+
+  UpdateUserStatus(this.userId, this.isOnline);
+
+  @override
+  List<Object?> get props => [userId, isOnline];
+}
+
+class FetchUserStatus extends HomeScreenEvent {
+  final String userId;
+
+  FetchUserStatus(this.userId);
+
+  @override
+  List<Object?> get props => [userId];
+}

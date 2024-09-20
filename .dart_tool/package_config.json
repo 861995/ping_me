@@ -350,6 +350,12 @@
       "languageVersion": "2.15"
     },
     {
+      "name": "intl",
+      "rootUri": "file:///Users/ramprakash/.pub-cache/hosted/pub.dev/intl-0.19.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "introduction_screen",
       "rootUri": "file:///Users/ramprakash/.pub-cache/hosted/pub.dev/introduction_screen-3.1.14",
       "packageUri": "lib/",
@@ -650,7 +656,7 @@
       "languageVersion": "3.3"
     }
   ],
-  "generated": "2024-09-20T07:51:13.754969Z",
+  "generated": "2024-09-20T07:49:37.162050Z",
   "generator": "pub",
   "generatorVersion": "3.3.4"
 }
