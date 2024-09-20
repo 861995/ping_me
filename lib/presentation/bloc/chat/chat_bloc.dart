@@ -71,7 +71,7 @@ class ChatScreenBloc extends Bloc<ChatEvent, ChatState> {
         'lastMessageTime': FieldValue.serverTimestamp(),
       });
 
-      // Also update the lastMessageTime field directly in the users collection
+      // update the lastMessageTime field directly in the users collection
       // await usersCollection.doc(currentUserId).update({
       //   'lastMessageTime': FieldValue.serverTimestamp(),
       // });
