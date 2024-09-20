@@ -46,6 +46,7 @@ class _ChatScreenState extends State<ChatScreen> {
         title: widget.userTitle,
         isProfileImage: true,
         photoURL: widget.photoURL,
+        recieverId: widget.recieverId,
       ),
       body: Column(
         children: [

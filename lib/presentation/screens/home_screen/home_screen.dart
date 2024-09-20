@@ -21,8 +21,41 @@ import '../../widgets/app_bar_widget/app_bar_widget.dart';
 import '../../widgets/drawer/drawer_widget.dart';
 import '../chat_screen/chat_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    final bloc = BlocProvider.of<HomeScreenBloc>(context);
+    String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    bloc.add(UpdateUserStatus(currentUserId, true));
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final bloc = BlocProvider.of<HomeScreenBloc>(context);
+    String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    if (state == AppLifecycleState.paused) {
+      bloc.add(UpdateUserStatus(currentUserId, false));
+    } else if (state == AppLifecycleState.resumed) {
+      bloc.add(UpdateUserStatus(currentUserId, true));
+    } else {
+      bloc.add(UpdateUserStatus(currentUserId, false));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

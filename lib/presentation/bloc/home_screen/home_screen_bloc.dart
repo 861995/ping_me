@@ -11,6 +11,8 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
   HomeScreenBloc() : super(UserInitial()) {
     on<SaveUserData>(_onSaveUserData);
     on<FetchUsersStream>(_onFetchUsersStream);
+    on<UpdateUserStatus>(_onUpdateUserStatus);
+    on<FetchUserStatus>(_onFetchUserStatus);
   }
 
   void _onSaveUserData(
@@ -88,5 +90,31 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
     } catch (e) {
       emit(NoUsersFound());
     }
+  }
+
+  Future<void> _onUpdateUserStatus(
+      UpdateUserStatus event, Emitter<HomeScreenState> emit) async {
+    try {
+      await _firestore.collection('users').doc(event.userId).update({
+        'isOnline': event.isOnline,
+        'lastActive': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      emit(UserFailure('Failed to update user status'));
+    }
+  }
+
+  void _onFetchUserStatus(
+      FetchUserStatus event, Emitter<HomeScreenState> emit) async {
+    await emit.forEach(
+      _firestore.collection('users').doc(event.userId).snapshots(),
+      onData: (statusSnapshot) {
+        final isOnline = statusSnapshot['isOnline'] ?? false;
+        final lastSeen = statusSnapshot['lastActive']?.toDate()
+            as DateTime; // Ensure you convert it if it's a Timestamp
+        return UserStatusLoaded(event.userId, isOnline, lastSeen);
+      },
+      onError: (_, __) => UserStatusError("Error"),
+    );
   }
 }
