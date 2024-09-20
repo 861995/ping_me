@@ -17,8 +17,8 @@ import 'package:we_chat/presentation/utils/app_fonts.dart';
 
 import '../../../helpers/page_navigate_animator/slide_page_navigator.dart';
 import '../../bloc/home_screen/home_screen_event.dart';
+import '../../widgets/app_bar_widget/app_bar_widget.dart';
 import '../../widgets/drawer/drawer_widget.dart';
-import '../../widgets/home_screen_widget/app_bar_widget.dart';
 import '../chat_screen/chat_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -61,14 +61,10 @@ class HomeScreen extends StatelessWidget {
                 context.loaderOverlay.hide();
               }
               if (state is UsersLoaded) {
-                List<Map<String, dynamic>> _filteredUsers =
-                    state.users.where((user) {
-                  return user['uid'] != currentUserId;
-                }).toList();
                 return AnimationList(
                   duration: 1500,
                   reBounceDepth: 10.0,
-                  children: _filteredUsers.map((user) {
+                  children: state.users.map((user) {
                     return _buildTile(
                         user['displayName'] ?? "",
                         user["photoURL"] ?? "",

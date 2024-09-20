@@ -7,8 +7,8 @@ import 'package:we_chat/presentation/utils/app_fonts.dart';
 import '../../bloc/chat/chat_bloc.dart';
 import '../../bloc/chat/chat_event.dart';
 import '../../bloc/chat/chat_state.dart';
+import '../../widgets/app_bar_widget/app_bar_widget.dart';
 import '../../widgets/chat_widgets/chat_bubble_widget.dart';
-import '../../widgets/home_screen_widget/app_bar_widget.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatId;
