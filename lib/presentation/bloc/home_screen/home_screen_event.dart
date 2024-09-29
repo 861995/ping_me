@@ -8,11 +8,12 @@ abstract class HomeScreenEvent extends Equatable {
 
 class SaveUserData extends HomeScreenEvent {
   final User user;
+  final String fcmToken;
 
-  SaveUserData(this.user);
+  SaveUserData(this.user, this.fcmToken);
 
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [user, fcmToken];
 }
 
 class FetchUsersStream extends HomeScreenEvent {}

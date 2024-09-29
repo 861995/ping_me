@@ -57,6 +57,10 @@ dependencies:
   animation_list: ^3.0.0
   lottie: ^3.1.2
   intl:
+  firebase_crashlytics:
+  firebase_analytics:
+  firebase_messaging:
+  flutter_local_notifications: ^17.2.3
 
 
 

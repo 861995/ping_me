@@ -1,3 +1,5 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,13 +15,30 @@ import 'package:we_chat/presentation/screens/home_screen/home_screen.dart';
 import 'package:we_chat/presentation/screens/on_board_screen/on_board_screen.dart';
 
 import 'core/injection/injection_container.dart';
+import 'helpers/notifiaction_helper/notification_helper.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp();
 
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+  NotificationService notificationService = NotificationService();
+  await notificationService.initialize();
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  notificationService.setupFCMListeners();
   await setup();
   runApp(const MyApp());
+}
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  try {
+    print("Handling a background message: ${message.messageId}");
+  } catch (e) {
+    print("Error in firebaseMessagingBackgroundHandler ${e}");
+  }
 }
 
 class MyApp extends StatelessWidget {

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../helpers/notifiaction_helper/notification_helper.dart';
 import 'chat_event.dart';
 import 'chat_state.dart';
 
@@ -43,7 +44,11 @@ class ChatScreenBloc extends Bloc<ChatEvent, ChatState> {
         'message': event.message,
         'timestamp': FieldValue.serverTimestamp(),
       });
-
+      NotificationService notificationService = NotificationService();
+      await notificationService.sendNotification(
+          recipientToken: event.recipientToken,
+          title: event.recipientName,
+          body: event.message);
       // Update lastMessageTime for the current user
       final usersCollection = FirebaseFirestore.instance.collection('users');
       final currentUserId = FirebaseAuth.instance.currentUser!.uid;
@@ -70,14 +75,6 @@ class ChatScreenBloc extends Bloc<ChatEvent, ChatState> {
         'lastMessage': event.message,
         'lastMessageTime': FieldValue.serverTimestamp(),
       });
-
-      // update the lastMessageTime field directly in the users collection
-      // await usersCollection.doc(currentUserId).update({
-      //   'lastMessageTime': FieldValue.serverTimestamp(),
-      // });
-      // await usersCollection.doc(event.receiverId).update({
-      //   'lastMessageTime': FieldValue.serverTimestamp(),
-      // });
 
       emit(ChatInitial());
     } catch (e) {

@@ -1,9 +1,13 @@
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../domain/repository/user_local_repository.dart';
+import '../../../helpers/firebase_crashlytics_catch/firebase_crashlytics_catch.dart';
+import '../../../helpers/notifiaction_helper/notification_helper.dart';
 import '../home_screen/home_screen_bloc.dart';
 import '../home_screen/home_screen_event.dart';
 import 'auth_event.dart';
@@ -40,9 +44,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final UserCredential userCredential =
           await _firebaseAuth.signInWithEmailAndPassword(
               email: event.email, password: event.password);
-      await _userRepository.saveUser(userCredential.user!);
-      _homeScreenBloc.add(SaveUserData(userCredential.user!));
-    } on FirebaseAuthException catch (e) {
+      await _userRepository.saveUser(userCredential.user!, "");
+      _homeScreenBloc.add(SaveUserData(userCredential.user!, ""));
+    } on FirebaseAuthException catch (e, s) {
+      FireBaseCrashlyticsCatch().onErrorCatch(
+          error: e.toString(),
+          stackTrace: s,
+          reason: "An unknown error occurred");
       emit(AuthFailure(e.message ?? 'An unknown error occurred'));
     }
   }
@@ -51,6 +59,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       SignInWithGoogle event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
+      String token = await getToken();
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         emit(AuthFailure('Google sign-in aborted'));
@@ -66,12 +75,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final UserCredential userCredential =
           await _firebaseAuth.signInWithCredential(credential);
       final User? user = userCredential.user;
-      await _userRepository.saveUser(user!);
+      await _userRepository.saveUser(user!, token);
 
-      _homeScreenBloc.add(SaveUserData(user));
+      _homeScreenBloc.add(SaveUserData(user, token));
       // await saveUserData(user);
       emit(Authenticated(user));
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, s) {
+      FireBaseCrashlyticsCatch().onErrorCatch(
+          error: e.toString(),
+          stackTrace: s,
+          reason: "An unknown error occurred");
       emit(AuthFailure(e.message ?? 'An unknown error occurred'));
     }
   }
@@ -82,15 +95,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _googleSignIn.signOut();
       await _userRepository.deleteUser();
       emit(AuthInitial());
-    } catch (e) {
+    } catch (e, s) {
+      FireBaseCrashlyticsCatch().onErrorCatch(
+          error: e.toString(),
+          stackTrace: s,
+          reason: "An unknown error occurred");
       emit(const AuthFailure('An unknown error occurred try again'));
     }
   }
 
   Future<Map<String, dynamic>?> getUser() async {
-    var mydata = _userRepository.getUser();
-    print(mydata);
-    return _userRepository.getUser();
+    try {
+      isLoggedIn = true;
+      return _userRepository.getUser();
+    } catch (e, s) {
+      FireBaseCrashlyticsCatch().onErrorCatch(
+          error: e.toString(),
+          stackTrace: s,
+          reason: "An unknown error occurred");
+      isLoggedIn = false;
+      return null;
+    }
   }
 
   void _onAuthAuthenticated(AuthAuthenticated event, Emitter<AuthState> emit) {
@@ -100,6 +125,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   void _onAuthUnauthenticated(
       AuthUnauthenticated event, Emitter<AuthState> emit) {
     emit(AuthInitial());
+  }
+
+  Future<String> getToken() async {
+    try {
+      final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+      String? token = await _firebaseMessaging.getToken();
+
+      print("FCM Token: $token");
+      return token!;
+    } catch (e, s) {
+      FireBaseCrashlyticsCatch().onErrorCatch(
+          error: e.toString(),
+          stackTrace: s,
+          reason: "An unknown error occurred");
+      return '';
+    }
   }
 }
 

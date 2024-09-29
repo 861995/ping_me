@@ -123,8 +123,6 @@ class DrawerWidget extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               _showMyDialog(context);
-
-              showToast("Signed out");
             },
           ),
         ],
@@ -173,6 +171,7 @@ class DrawerWidget extends StatelessWidget {
 
   void _signOut(BuildContext context) {
     context.read<AuthBloc>().add(SignOut());
+    showToast("Signed out");
     Navigator.pop(context);
     Navigator.pushAndRemoveUntil(
       context,

@@ -103,7 +103,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         user["photoURL"] ?? "",
                         context,
                         user['uid'] ?? "",
-                        currentUserId);
+                        currentUserId,
+                        user['fcmToken'] ?? "");
                   }).toList(),
                 );
               }
@@ -119,11 +120,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildTile(String title, String? photoURL, BuildContext context,
-      String recieverId, String currentUserId) {
+      String recieverId, String currentUserId, String recipientToken) {
     return InkWell(
       onTap: () {
-        navigateToChatScreen(
-            context, title, photoURL!, recieverId, currentUserId);
+        navigateToChatScreen(context, title, photoURL!, recieverId,
+            currentUserId, recipientToken);
       },
       child: Container(
         height: 60.sp,
@@ -172,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void navigateToChatScreen(BuildContext context, String title, String photoURL,
-      String receiverId, String currentUserId) async {
+      String receiverId, String currentUserId, String recipientToken) async {
     final chatScreenBloc = BlocProvider.of<ChatScreenBloc>(context);
     final String chatId =
         await chatScreenBloc.getOrCreateChatId(currentUserId, receiverId);
@@ -182,11 +183,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       context,
       SlidePageRoute(
           page: ChatScreen(
-              chatId: chatId,
-              userTitle: title,
-              photoURL: photoURL,
-              recieverId: receiverId,
-              currentUserID: currentUserId)),
+        chatId: chatId,
+        userTitle: title,
+        photoURL: photoURL,
+        recieverId: receiverId,
+        currentUserID: currentUserId,
+        recipientToken: recipientToken,
+      )),
     );
   }
 }
