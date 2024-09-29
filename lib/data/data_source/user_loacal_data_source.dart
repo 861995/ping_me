@@ -8,12 +8,13 @@ class UserLocalDataSource {
 
   UserLocalDataSource(this._sharedPreferences);
 
-  Future<void> saveUser(User user) async {
+  Future<void> saveUser(User user, String fcmToken) async {
     final userMap = {
       'uid': user.uid,
       'email': user.email,
       'displayName': user.displayName,
       'photoURL': user.photoURL,
+      "fcmToken": fcmToken,
     };
 
     final jsonString = jsonEncode(userMap);

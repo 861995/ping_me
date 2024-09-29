@@ -9,7 +9,8 @@ class UserLocalRepositoryImpl implements UserLocalRepository {
   UserLocalRepositoryImpl(this._dataSource);
 
   @override
-  Future<void> saveUser(User user) => _dataSource.saveUser(user);
+  Future<void> saveUser(User user, String fcmToken) =>
+      _dataSource.saveUser(user, fcmToken);
 
   @override
   Map<String, dynamic>? getUser() => _dataSource.getUser();

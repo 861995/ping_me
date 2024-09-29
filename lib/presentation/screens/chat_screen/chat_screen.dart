@@ -16,14 +16,17 @@ class ChatScreen extends StatefulWidget {
   final String photoURL;
   final String recieverId;
   final String currentUserID;
+  final String recipientToken;
 
-  const ChatScreen(
-      {super.key,
-      required this.chatId,
-      required this.photoURL,
-      required this.recieverId,
-      required this.currentUserID,
-      required this.userTitle});
+  const ChatScreen({
+    super.key,
+    required this.chatId,
+    required this.photoURL,
+    required this.recieverId,
+    required this.currentUserID,
+    required this.userTitle,
+    required this.recipientToken,
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -113,7 +116,11 @@ class _ChatScreenState extends State<ChatScreen> {
               final message = _messageController.text;
               if (message.isNotEmpty) {
                 context.read<ChatScreenBloc>().add(SendMessageEvent(
-                    widget.chatId, message, widget.recieverId));
+                    widget.chatId,
+                    message,
+                    widget.recieverId,
+                    widget.recipientToken,
+                    widget.userTitle));
                 _messageController.clear();
               }
             },

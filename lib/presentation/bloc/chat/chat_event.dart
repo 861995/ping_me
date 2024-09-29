@@ -4,8 +4,11 @@ class SendMessageEvent extends ChatEvent {
   final String chatId;
   final String message;
   final String receiverId;
+  final String recipientToken;
+  final String recipientName;
 
-  SendMessageEvent(this.chatId, this.message, this.receiverId);
+  SendMessageEvent(this.chatId, this.message, this.receiverId,
+      this.recipientToken, this.recipientName);
 }
 
 class FetchMessagesStreamEvent extends ChatEvent {

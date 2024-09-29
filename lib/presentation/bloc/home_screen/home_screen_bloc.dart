@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../../helpers/firebase_crashlytics_catch/firebase_crashlytics_catch.dart';
 import 'home_screen_event.dart';
 import 'home_screen_state.dart';
 
@@ -24,6 +25,7 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
         'email': event.user.email,
         'displayName': event.user.displayName,
         'photoURL': event.user.photoURL,
+        'fcmToken': event.fcmToken
       });
       emit(UserSaved());
     } catch (e) {
@@ -33,62 +35,72 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
 
   Future<void> _onFetchUsersStream(
       FetchUsersStream event, Emitter<HomeScreenState> emit) async {
-    final firestore = FirebaseFirestore.instance;
-    final userCollection = firestore.collection('users');
-    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
-
-    emit(UserLoading());
-
     try {
-      // Fetch the conversations for the current user
-      final conversationsSnapshot = await userCollection
-          .doc(currentUserId)
-          .collection('conversations')
-          .get();
-
-      // Create a map of userId to lastMessageTime
-      Map<String, Timestamp?> lastMessageMap = {};
-      for (var doc in conversationsSnapshot.docs) {
-        lastMessageMap[doc.id] = doc.data()['lastMessageTime'] as Timestamp?;
+      final firestore = FirebaseFirestore.instance;
+      final userCollection = firestore.collection('users');
+      String? currentUserId;
+      if (FirebaseAuth.instance.currentUser != null) {
+        currentUserId = FirebaseAuth.instance.currentUser!.uid;
       }
 
-      await emit.forEach(
-        userCollection.snapshots(),
-        onData: (QuerySnapshot snapshot) {
-          final users = snapshot.docs.map((doc) {
-            return doc.data() as Map<String, dynamic>;
-          }).toList();
+      emit(UserLoading());
 
-          if (users.isNotEmpty) {
-            // Filter out the current user
-            List<Map<String, dynamic>> _filteredUsers = users.where((user) {
-              return user['uid'] != currentUserId;
+      try {
+        // Fetch the conversations for the current user
+        final conversationsSnapshot = await userCollection
+            .doc(currentUserId)
+            .collection('conversations')
+            .get();
+
+        // Create a map of userId to lastMessageTime
+        Map<String, Timestamp?> lastMessageMap = {};
+        for (var doc in conversationsSnapshot.docs) {
+          lastMessageMap[doc.id] = doc.data()['lastMessageTime'] as Timestamp?;
+        }
+
+        await emit.forEach(
+          userCollection.snapshots(),
+          onData: (QuerySnapshot snapshot) {
+            final users = snapshot.docs.map((doc) {
+              return doc.data() as Map<String, dynamic>;
             }).toList();
 
-            // Attach lastMessageTime from conversations to users
-            _filteredUsers.forEach((user) {
-              user['lastMessageTime'] = lastMessageMap[user['uid']] ?? null;
-            });
+            if (users.isNotEmpty) {
+              // Filter out the current user
+              List<Map<String, dynamic>> _filteredUsers = users.where((user) {
+                return user['uid'] != currentUserId;
+              }).toList();
 
-            // Sort the users based on lastMessageTime
-            _filteredUsers.sort((a, b) {
-              Timestamp? timeA = a['lastMessageTime'];
-              Timestamp? timeB = b['lastMessageTime'];
-              if (timeA == null && timeB == null) return 0;
-              if (timeA == null) return 1;
-              if (timeB == null) return -1;
-              return timeB.compareTo(timeA);
-            });
+              // Attach lastMessageTime from conversations to users
+              _filteredUsers.forEach((user) {
+                user['lastMessageTime'] = lastMessageMap[user['uid']] ?? null;
+              });
 
-            return UsersLoaded(_filteredUsers);
-          } else {
-            return NoUsersFound();
-          }
-        },
-        onError: (_, __) => NoUsersFound(),
-      );
-    } catch (e) {
-      emit(NoUsersFound());
+              // Sort the users based on lastMessageTime
+              _filteredUsers.sort((a, b) {
+                Timestamp? timeA = a['lastMessageTime'];
+                Timestamp? timeB = b['lastMessageTime'];
+                if (timeA == null && timeB == null) return 0;
+                if (timeA == null) return 1;
+                if (timeB == null) return -1;
+                return timeB.compareTo(timeA);
+              });
+
+              return UsersLoaded(_filteredUsers);
+            } else {
+              return NoUsersFound();
+            }
+          },
+          onError: (_, __) => NoUsersFound(),
+        );
+      } catch (e) {
+        emit(NoUsersFound());
+      }
+    } catch (e, s) {
+      FireBaseCrashlyticsCatch().onErrorCatch(
+          error: e.toString(),
+          stackTrace: s,
+          reason: "An unknown error occurred");
     }
   }
 
